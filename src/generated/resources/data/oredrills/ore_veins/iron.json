@@ -1,0 +1,15 @@
+{
+  "biome_filter": "#minecraft:is_overworld",
+  "density": 0.8,
+  "dim_id_filter": [
+    "minecraft:overworld"
+  ],
+  "gen_weight": 80,
+  "id": "oredrills:iron",
+  "is_biomes_blacklist": false,
+  "max_height": 200,
+  "min_height": 50,
+  "mining_drop_loot_table": "minecraft:blocks/iron_ore",
+  "ore_texture": "minecraft:block/iron_ore",
+  "size_xz": 30
+}

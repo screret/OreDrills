@@ -1,0 +1,15 @@
+{
+  "biome_filter": "#minecraft:is_mountain",
+  "density": 0.4,
+  "dim_id_filter": [
+    "minecraft:overworld"
+  ],
+  "gen_weight": 30,
+  "id": "oredrills:emerald",
+  "is_biomes_blacklist": false,
+  "max_height": 320,
+  "min_height": 0,
+  "mining_drop_loot_table": "minecraft:blocks/emerald_ore",
+  "ore_texture": "minecraft:block/emerald_ore",
+  "size_xz": 40
+}

@@ -1,0 +1,4 @@
+// 1.19.3	2023-01-17T18:37:43.9532504	Registries
+a3bf6594ce071c32e0bf51bd4d270a18627efffb data/oredrills/forge/biome_modifier/add_veins.json
+6e759312516e057f77dc6831a01d54e28f80a478 data/oredrills/worldgen/configured_feature/veins.json
+847a400c048daa533430d8af052c52b0b60bc55a data/oredrills/worldgen/placed_feature/veins.json

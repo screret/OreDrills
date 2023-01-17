@@ -1,0 +1,15 @@
+{
+  "biome_filter": "#minecraft:is_overworld",
+  "density": 0.5,
+  "dim_id_filter": [
+    "minecraft:overworld"
+  ],
+  "gen_weight": 60,
+  "id": "oredrills:gold",
+  "is_biomes_blacklist": false,
+  "max_height": 200,
+  "min_height": 50,
+  "mining_drop_loot_table": "minecraft:blocks/gold_ore",
+  "ore_texture": "minecraft:block/gold_ore",
+  "size_xz": 20
+}

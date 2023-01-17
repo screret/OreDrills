@@ -1,0 +1,15 @@
+{
+  "biome_filter": "#minecraft:is_overworld",
+  "density": 0.3,
+  "dim_id_filter": [
+    "minecraft:overworld"
+  ],
+  "gen_weight": 20,
+  "id": "oredrills:diamond",
+  "is_biomes_blacklist": false,
+  "max_height": 100,
+  "min_height": 0,
+  "mining_drop_loot_table": "minecraft:blocks/diamond_ore",
+  "ore_texture": "minecraft:block/diamond_ore",
+  "size_xz": 40
+}

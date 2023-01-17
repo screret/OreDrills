@@ -1,0 +1,15 @@
+{
+  "biome_filter": "#minecraft:is_overworld",
+  "density": 0.8,
+  "dim_id_filter": [
+    "minecraft:overworld"
+  ],
+  "gen_weight": 100,
+  "id": "oredrills:coal",
+  "is_biomes_blacklist": false,
+  "max_height": 320,
+  "min_height": 0,
+  "mining_drop_loot_table": "minecraft:blocks/coal_ore",
+  "ore_texture": "minecraft:block/coal_ore",
+  "size_xz": 40
+}

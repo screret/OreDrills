@@ -1,9 +1,9 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "screret.voidrills.mixin",
+  "package": "screret.oredrills.mixin",
   "compatibilityLevel": "JAVA_8",
-  "refmap": "voidrills.refmap.json",
+  "refmap": "oredrills.refmap.json",
   "mixins": [
   ],
   "client": [

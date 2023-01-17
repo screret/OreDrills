@@ -1,4 +1,4 @@
-package screret.voidrills.block.entity;
+package screret.oredrills.block.entity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -10,7 +10,7 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
-import screret.voidrills.block.ModBlockEntities;
+import screret.oredrills.block.ModBlockEntities;
 
 import javax.annotation.Nullable;
 
