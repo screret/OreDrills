@@ -26,9 +26,8 @@ public class ProspectCommand {
         if(command.getSource().getEntity() instanceof Player player){
             var veins = player.level.getCapability(VeinCapability.CAPABILITY).orElseThrow(() -> new IllegalStateException("VeinCapability is null.")).getOreVeins(new ChunkPos(player.blockPosition()));
             player.sendSystemMessage(Component.translatable("msg.prospect").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW));
-            for (var vein : veins.keySet()){
-                player.sendSystemMessage(Component.literal("  - " + vein.id).withStyle(ChatFormatting.YELLOW));
-            }
+            for (var vein : veins.entrySet()){
+                player.sendSystemMessage(Component.literal("  - " + vein.getKey().id + ": " + vein.getValue()).withStyle(ChatFormatting.YELLOW));            }
         }
         return Command.SINGLE_SUCCESS;
     }
@@ -38,13 +37,13 @@ public class ProspectCommand {
         var veins = level.getCapability(VeinCapability.CAPABILITY).orElseThrow(() -> new IllegalStateException("VeinCapability is null.")).getOreVeins(new ChunkPos(pos));
         if(command.getSource().getEntity() instanceof Player player) {
             player.sendSystemMessage(Component.translatable("msg.prospect").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW));
-            for (var vein : veins.keySet()){
-                player.sendSystemMessage(Component.literal("  - " + vein.id).withStyle(ChatFormatting.YELLOW));
+            for (var vein : veins.entrySet()){
+                player.sendSystemMessage(Component.literal("  - " + vein.getKey().id + ": " + vein.getValue()).withStyle(ChatFormatting.YELLOW));
             }
         }else {
             level.getServer().sendSystemMessage(Component.translatable("msg.prospect").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW));
-            for (var vein : veins.keySet()){
-                level.getServer().sendSystemMessage(Component.literal("  - " + vein.id).withStyle(ChatFormatting.YELLOW));
+            for (var vein : veins.entrySet()){
+                level.getServer().sendSystemMessage(Component.literal("  - " + vein.getKey().id + ": " + vein.getValue()).withStyle(ChatFormatting.YELLOW));
             }
         }
 

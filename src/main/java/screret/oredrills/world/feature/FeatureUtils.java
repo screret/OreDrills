@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import screret.oredrills.OreDrills;
 import screret.oredrills.capability.vein.IVeinCapability;
+import screret.oredrills.capability.world.IChunkGennedCapability;
 import screret.oredrills.resources.OreVeinType;
 
 public class FeatureUtils {
@@ -29,7 +30,18 @@ public class FeatureUtils {
         }
     }
 
-    public static boolean enqueueBlockPlacement(WorldGenLevel level, ChunkPos chunk, BlockPos pos, BlockState state, IVeinCapability depCap, OreVeinType type) {
+    public static boolean enqueueBlockPlacement(WorldGenLevel level, ChunkPos chunk, BlockPos pos, BlockState state, IVeinCapability depCap, IChunkGennedCapability genCap, OreVeinType type) {
+        // It's too late to enqueue so just bite the bullet and force placement
+        if (genCap != null && genCap.hasChunkGenerated(new ChunkPos(pos))) {
+            ChunkAccess chunkaccess = level.getChunk(pos);
+            BlockState blockstate = chunkaccess.setBlockState(pos, state, false);
+            if (blockstate != null) {
+                level.getLevel().onBlockStateChange(pos, blockstate, state);
+            }
+            depCap.putVein(pos, type);
+            return true;
+        }
+
         if (!ensureCanWriteNoThrow(level, pos)) {
             depCap.putPendingBlock(pos, state, type);
             return false;
@@ -40,6 +52,7 @@ public class FeatureUtils {
             return false;
         }
 
+        depCap.putVein(pos, type);
         return true;
     }
 

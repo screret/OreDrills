@@ -19,6 +19,8 @@ public interface IVeinCapability {
 
     ConcurrentLinkedQueue<VeinCapability.PendingBlock> getPendingBlocks(ChunkPos chunkPos);
 
+    void putVein(BlockPos pos, OreVeinType type);
+
     Map<OreVeinType, Integer> getOreVeins(ChunkPos chunkPos);
 
     int deductOreFromVein(ChunkPos pos, OreVeinType type);

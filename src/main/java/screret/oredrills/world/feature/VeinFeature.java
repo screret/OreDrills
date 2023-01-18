@@ -11,6 +11,8 @@ import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConf
 import screret.oredrills.Config;
 import screret.oredrills.capability.vein.IVeinCapability;
 import screret.oredrills.capability.vein.VeinCapability;
+import screret.oredrills.capability.world.ChunkGennedCapability;
+import screret.oredrills.capability.world.IChunkGennedCapability;
 import screret.oredrills.resources.OreVeinManager;
 import screret.oredrills.resources.OreVeinType;
 
@@ -35,8 +37,11 @@ public class VeinFeature extends Feature<NoneFeatureConfiguration> {
         IVeinCapability depCap = level.getLevel().getCapability(VeinCapability.CAPABILITY)
                 .orElseThrow(() -> new RuntimeException("OreDrills Vein Capability Is Null.."));
 
+        IChunkGennedCapability cgCap = level.getLevel().getCapability(ChunkGennedCapability.CAPABILITY)
+                .orElseThrow(() -> new RuntimeException("Geolosys Pluton Capability Is Null.."));
+
         boolean placedVein = false;
-        boolean placedPending = placePendingBlocks(level, depCap, pos);
+        boolean placedPending = placePendingBlocks(level, depCap, cgCap, pos);
 
         if (level.getRandom().nextDouble() > Config.Common.CHUNK_SKIP_CHANCE.get()) {
             for (int p = 0; p < Config.Common.NUMBER_VEINS_PER_CHUNK.get(); p++) {
@@ -45,7 +50,7 @@ public class VeinFeature extends Feature<NoneFeatureConfiguration> {
                     continue;
                 }
 
-                boolean anyGenerated = vein.generate(level, pos, depCap) > 0;
+                boolean anyGenerated = vein.generate(level, pos, depCap, cgCap) > 0;
                 if (anyGenerated) {
                     placedVein = true;
                     vein.afterGen(pos);
@@ -56,10 +61,10 @@ public class VeinFeature extends Feature<NoneFeatureConfiguration> {
         return placedVein || placedPending;
     }
 
-    private boolean placePendingBlocks(WorldGenLevel level, IVeinCapability depCap, BlockPos origin) {
+    private boolean placePendingBlocks(WorldGenLevel level, IVeinCapability depCap, IChunkGennedCapability genCap, BlockPos origin) {
         ChunkPos cp = new ChunkPos(origin);
         ConcurrentLinkedQueue<VeinCapability.PendingBlock> q = depCap.getPendingBlocks(cp);
-        q.forEach(x -> FeatureUtils.enqueueBlockPlacement(level, cp, x.pos(), x.state(), depCap, x.type()));
+        q.forEach(x -> FeatureUtils.enqueueBlockPlacement(level, cp, x.pos(), x.state(), depCap, genCap, x.type()));
         depCap.removePendingBlocksForChunk(cp);
         return q.size() > 0;
     }

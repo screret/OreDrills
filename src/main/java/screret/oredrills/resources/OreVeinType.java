@@ -6,7 +6,7 @@ import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.Item;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
@@ -16,14 +16,18 @@ import net.minecraftforge.registries.ForgeRegistries;
 import screret.oredrills.Config;
 import screret.oredrills.OreDrills;
 import screret.oredrills.capability.vein.IVeinCapability;
+import screret.oredrills.capability.world.IChunkGennedCapability;
 import screret.oredrills.world.feature.FeatureUtils;
+
+import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 public class OreVeinType/* implements INBTSerializable<Tag>*/ {
 
-    public OreVeinType(ResourceLocation id, ResourceLocation oreTexture, ResourceLocation miningResultLootTable, int genWeight, float density, int minSpawnHeight, int maxSpawnHeight, ResourceLocation[] dimIdFilter, TagKey<Biome> biomeList, boolean isBiomesBlacklist, int sizeXZ){
+    public OreVeinType(ResourceLocation id, int genWeight, float density, int minSpawnHeight, int maxSpawnHeight, ResourceLocation[] dimIdFilter, TagKey<Biome> biomeList, boolean isBiomesBlacklist, int sizeXZ, HashSet<BlockState> blockStateMatchers, Map<String, Map<BlockState, Float>> oreBlocks){
         this.id = id;
-        this.oreTexture = oreTexture;
-        this.miningResultLootTable = miningResultLootTable;
         this.genWeight = genWeight;
         this.densityPercentage = density;
         this.minSpawnHeight = minSpawnHeight;
@@ -32,17 +36,41 @@ public class OreVeinType/* implements INBTSerializable<Tag>*/ {
         this.biomes = biomeList;
         this.isBiomesBlacklist = isBiomesBlacklist;
         this.sizeXZ = sizeXZ;
+
+        this.oreToWeightMap = oreBlocks;
+        if (!this.oreToWeightMap.containsKey("default")) {
+            throw new RuntimeException("Vein blocks should always have a default key");
+        }
+        this.blockStateMatchers = blockStateMatchers;
+
+        for (Map.Entry<String, Map<BlockState, Float>> i : this.oreToWeightMap.entrySet()) {
+            if (!this.cumulOreWeightMap.containsKey(i.getKey())) {
+                this.cumulOreWeightMap.put(i.getKey(), 0.0F);
+            }
+
+            for (Map.Entry<BlockState, Float> j : i.getValue().entrySet()) {
+                float v = this.cumulOreWeightMap.get(i.getKey());
+                this.cumulOreWeightMap.put(i.getKey(), v + j.getValue());
+            }
+
+            if (this.cumulOreWeightMap.get(i.getKey()) != 1.0F) {
+                throw new RuntimeException("Sum of weights for vein blocks should equal 1.0");
+            }
+        }
     }
 
     public ResourceLocation id;
-    public ResourceLocation oreTexture;
-    public ResourceLocation miningResultLootTable;
+
+    public final Map<String, Map<BlockState, Float>> oreToWeightMap;
+    private final HashSet<BlockState> blockStateMatchers;
+    private final HashMap<String, Float> cumulOreWeightMap = new HashMap<>();
+
     public int genWeight;
     public float densityPercentage;
     public int minSpawnHeight, maxSpawnHeight;
     public ResourceLocation[] dimIdFilter;
-    public TagKey<Biome> biomes;
-    public boolean isBiomesBlacklist = true;
+    public final TagKey<Biome> biomes;
+    public final boolean isBiomesBlacklist;
     public int sizeXZ;
 
 
@@ -50,7 +78,18 @@ public class OreVeinType/* implements INBTSerializable<Tag>*/ {
         return isBiomesBlacklist != biomeHolder.is(biomes);
     }
 
-    public int generate(WorldGenLevel level, BlockPos pos, IVeinCapability veins) {
+    @Nullable
+    public BlockState getOre(BlockState currentState, RandomSource rand) {
+        ResourceLocation res = ForgeRegistries.BLOCKS.getKey(currentState.getBlock());
+        if (this.oreToWeightMap.containsKey(res)) {
+            // Return a choice from a specialized set here
+            Map<BlockState, Float> mp = this.oreToWeightMap.get(res);
+            return VeinUtils.pick(mp, this.cumulOreWeightMap.get(res), rand);
+        }
+        return VeinUtils.pick(this.oreToWeightMap.get("default"), this.cumulOreWeightMap.get("default"), rand);
+    }
+
+    public int generate(WorldGenLevel level, BlockPos pos, IVeinCapability veins, IChunkGennedCapability chunksGenerated) {
         /* Dimension checking is done in PlutonRegistry#pick */
         /* Check biome allowance */
         if (!this.canPlaceInBiome(level.getBiome(pos))) {
@@ -100,8 +139,18 @@ public class OreVeinType/* implements INBTSerializable<Tag>*/ {
                                 if (layerRadX * layerRadX + layerRadY * layerRadY + layerRadZ * layerRadZ < 1.0D) {
                                     BlockPos placePos = new BlockPos(x, y, z);
                                     BlockState current = level.getBlockState(placePos);
+                                    BlockState tmp = this.getOre(current, level.getRandom());
+                                    if (tmp == null) {
+                                        continue;
+                                    }
 
-                                    if (FeatureUtils.enqueueBlockPlacement(level, new ChunkPos(pos), placePos, current, veins, this)) {
+                                    // Skip this block if it can't replace the target block or doesn't have a
+                                    // manually-configured replacer in the blocks object
+                                    if (!(this.getBlockStateMatchers().contains(current) || this.oreToWeightMap.containsKey(ForgeRegistries.BLOCKS.getKey(current.getBlock()).toString()))) {
+                                        continue;
+                                    }
+
+                                    if (FeatureUtils.enqueueBlockPlacement(level, new ChunkPos(pos), placePos, tmp, veins, chunksGenerated, this)) {
                                         totalPlaced++;
                                     }
                                 }
@@ -112,22 +161,23 @@ public class OreVeinType/* implements INBTSerializable<Tag>*/ {
             }
         }
 
-        OreDrills.LOGGER.debug("" + totalPlaced);
         return totalPlaced;
     }
 
     public void afterGen(BlockPos pos) {
-        // Debug the pluton
+        // Debug the vein
         if (Config.Common.DEBUG_WORLD_GEN.get()) {
-            OreDrills.LOGGER.info("Generated {} in Chunk {} (Pos [{} {} {}])", this, new ChunkPos(pos), pos.getX(), pos.getY(), pos.getZ());
+            OreDrills.LOGGER.info("Generated {} in Chunk {} (Pos [{} {} {}])", this.id, new ChunkPos(pos), pos.getX(), pos.getY(), pos.getZ());
         }
+    }
+
+    public HashSet<BlockState> getBlockStateMatchers() {
+        return this.blockStateMatchers == null ? VeinUtils.getDefaultMatchers() : this.blockStateMatchers;
     }
 
     public Tag serializeNBT() {
         CompoundTag tag = new CompoundTag();
         tag.putString("id", this.id.toString());
-        tag.putString("ore_texture", oreTexture.toString());
-        tag.putString("mining_drop_loot_table", miningResultLootTable.toString());
         tag.putInt("gen_weight", genWeight);
         tag.putFloat("density", densityPercentage);
         tag.putInt("min_height", minSpawnHeight);
@@ -148,8 +198,6 @@ public class OreVeinType/* implements INBTSerializable<Tag>*/ {
         }
         CompoundTag tag = (CompoundTag)nbt;
         this.id = new ResourceLocation(tag.getString("id"));
-        this.oreTexture = new ResourceLocation(tag.getString("ore_texture"));
-        this.miningResultLootTable = new ResourceLocation(tag.getString("mining_drop_loot_table"));
         this.genWeight = tag.getInt("gen_weight");
         this.densityPercentage = tag.getFloat("density");
         this.minSpawnHeight = tag.getInt("min_height");

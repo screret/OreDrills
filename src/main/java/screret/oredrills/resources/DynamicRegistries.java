@@ -15,6 +15,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
@@ -26,6 +27,7 @@ import net.minecraftforge.common.world.BiomeModifier;
 import net.minecraftforge.common.world.ForgeBiomeModifiers;
 import net.minecraftforge.common.world.ModifiableBiomeInfo;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.holdersets.NotHolderSet;
 import net.minecraftforge.registries.holdersets.OrHolderSet;
 import screret.oredrills.OreDrills;
 import screret.oredrills.world.ModWorldGen;
@@ -50,17 +52,11 @@ public class DynamicRegistries {
                             List.of(HeightRangePlacement.uniform(VerticalAnchor.bottom(), VerticalAnchor.top()))
                     )
             ))
-            .add(ForgeRegistries.Keys.BIOME_MODIFIERS, context -> {
+            /*.add(ForgeRegistries.Keys.BIOME_MODIFIERS, context -> {
                 context.register(ADD_VEINS_MODIFIER, new ForgeBiomeModifiers.AddFeaturesBiomeModifier(
-                        new OrHolderSet<>(Lists.newArrayList(
-                                context.lookup(Registries.BIOME).getOrThrow(BiomeTags.IS_OVERWORLD),
-                                context.lookup(Registries.BIOME).getOrThrow(BiomeTags.IS_NETHER),
-                                context.lookup(Registries.BIOME).getOrThrow(BiomeTags.IS_END)
-                        )),
+                        new NotHolderSet<Biome>(context.registryLookup(Registries.BIOME).get(), (HolderSet<Biome>) context.registryLookup(Registries.BIOME).get().getOrThrow(Biomes.THE_VOID)),
                         HolderSet.direct(context.lookup(Registries.PLACED_FEATURE).getOrThrow(VEINS_PLACED)),
                         GenerationStep.Decoration.UNDERGROUND_ORES
                 ));
-
-
-            });
+            })*/;
 }

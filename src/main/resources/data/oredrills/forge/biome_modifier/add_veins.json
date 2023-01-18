@@ -1,0 +1,9 @@
+{
+  "type": "forge:add_features",
+  "biomes": {
+    "type": "forge:not",
+    "value": "minecraft:the_void"
+  },
+  "features": "oredrills:veins",
+  "step": "underground_ores"
+}

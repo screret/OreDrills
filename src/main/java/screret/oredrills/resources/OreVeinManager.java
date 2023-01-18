@@ -17,6 +17,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.Deserializers;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
@@ -24,9 +25,7 @@ import org.apache.logging.log4j.Logger;
 import screret.oredrills.OreDrills;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class OreVeinManager extends SimpleJsonResourceReloadListener {
     public static OreVeinManager INSTANCE;
@@ -61,8 +60,6 @@ public class OreVeinManager extends SimpleJsonResourceReloadListener {
     }
 
     public static OreVeinType fromJson(ResourceLocation pVeinId, JsonObject pJson) {
-        ResourceLocation oreTexture = new ResourceLocation(pJson.getAsJsonPrimitive("ore_texture").getAsString());
-        ResourceLocation result = new ResourceLocation(pJson.getAsJsonPrimitive("mining_drop_loot_table").getAsString());
         int chancePerChunk = pJson.getAsJsonPrimitive("gen_weight").getAsInt();
         float density = pJson.getAsJsonPrimitive("density").getAsFloat();
         int minSpawnHeight = pJson.getAsJsonPrimitive("min_height").getAsInt();
@@ -71,7 +68,14 @@ public class OreVeinManager extends SimpleJsonResourceReloadListener {
         int sizeXZ = pJson.getAsJsonPrimitive("size_xz").getAsInt();
         TagKey<Biome> biomeTag = TagKey.create(Registries.BIOME, new ResourceLocation(pJson.get("biome_filter").getAsString().replace("#", "")));
         boolean isBiomesBlacklist = pJson.getAsJsonPrimitive("is_biomes_blacklist").getAsBoolean();
-        return new OreVeinType(pVeinId, oreTexture, result, chancePerChunk, density, minSpawnHeight, maxSpawnHeight, dimIdFilter, biomeTag, isBiomesBlacklist, sizeXZ);
+
+        HashMap<String, Map<BlockState, Float>> oreBlocks = VeinUtils.buildMultiBlockMatcherMap(pJson.get("blocks").getAsJsonObject());
+        HashSet<BlockState> blockStateMatchers = VeinUtils.getDefaultMatchers();
+        if (pJson.has("block_state_matchers")) {
+            blockStateMatchers = VeinUtils.toBlockStateList(pJson.get("block_state_matchers").getAsJsonArray());
+        }
+
+        return new OreVeinType(pVeinId, chancePerChunk, density, minSpawnHeight, maxSpawnHeight, dimIdFilter, biomeTag, isBiomesBlacklist, sizeXZ, blockStateMatchers, oreBlocks);
     }
 
     /**

@@ -49,8 +49,13 @@ public class VeinCapability implements IVeinCapability {
         ChunkPos cp = new ChunkPos(pos);
         this.pendingBlocks.putIfAbsent(cp, new ConcurrentLinkedQueue<>());
         this.pendingBlocks.get(cp).add(p);
+    }
+
+    public void putVein(BlockPos pos, OreVeinType type){
+        ChunkPos cp = new ChunkPos(pos);
         this.oreTypeCountPerChunk.putIfAbsent(cp, new HashMap<>());
-        this.oreTypeCountPerChunk.get(cp).put(type, this.oreTypeCountPerChunk.get(cp).get(type) + 1);
+        var chunkVeins = this.oreTypeCountPerChunk.get(cp);
+        chunkVeins.put(type, chunkVeins.get(type) == null ? 1 : chunkVeins.get(type) + 1);
     }
 
     @Override
@@ -71,9 +76,12 @@ public class VeinCapability implements IVeinCapability {
     @Override
     public int deductOreFromVein(ChunkPos pos, OreVeinType type){
         var veins = this.oreTypeCountPerChunk.get(pos);
-        var deducted = veins.get(type) - 1;
-        veins.replace(type, deducted);
-        return deducted;
+        if(veins != null && veins.get(type) != null) {
+            var deducted = veins.get(type) - 1;
+            veins.replace(type, deducted);
+            return deducted;
+        }
+        return 0;
     }
 
     @Override

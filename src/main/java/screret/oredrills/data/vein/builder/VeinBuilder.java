@@ -4,8 +4,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraftforge.registries.ForgeRegistries;
 import screret.oredrills.resources.OreVeinType;
+import screret.oredrills.resources.VeinUtils;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
@@ -37,7 +37,6 @@ public class VeinBuilder {
      */
     private void ensureValid(ResourceLocation pId) {
         if (result.sizeXZ <= 0 ||
-                result.miningResultLootTable == null ||
                 result.minSpawnHeight > result.maxSpawnHeight ||
                 result.biomes == null ||
                 result.id == null ||
@@ -56,10 +55,7 @@ public class VeinBuilder {
             this.result = result;
         }
 
-        public void serializeRecipeData(JsonObject pJson) {
-            pJson.addProperty("id", result.id.toString());
-            pJson.addProperty("ore_texture", result.oreTexture.toString());
-            pJson.addProperty("mining_drop_loot_table", result.miningResultLootTable.toString());
+        public void serializeVeinData(JsonObject pJson) {
             pJson.addProperty("gen_weight", result.genWeight);
             pJson.addProperty("density", result.densityPercentage);
             pJson.addProperty("min_height", result.minSpawnHeight);
@@ -70,11 +66,12 @@ public class VeinBuilder {
             pJson.addProperty("biome_filter", "#" + result.biomes.location());
             pJson.addProperty("is_biomes_blacklist", result.isBiomesBlacklist);
             pJson.addProperty("size_xz", result.sizeXZ);
+            pJson.add("blocks", VeinUtils.deconstructMultiBlockMatcherMap(result.oreToWeightMap));
         }
 
         public JsonObject serializeRecipe() {
             JsonObject jsonobject = new JsonObject();
-            this.serializeRecipeData(jsonobject);
+            this.serializeVeinData(jsonobject);
             return jsonobject;
         }
 

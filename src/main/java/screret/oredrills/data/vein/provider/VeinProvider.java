@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.WorldDimensions;
 import net.minecraft.world.level.storage.loot.LootTables;
 import net.minecraftforge.common.Tags;
@@ -16,10 +17,9 @@ import org.slf4j.Logger;
 import screret.oredrills.OreDrills;
 import screret.oredrills.data.vein.builder.VeinBuilder;
 import screret.oredrills.resources.OreVeinType;
+import screret.oredrills.resources.VeinUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -43,107 +43,115 @@ public class VeinProvider implements DataProvider {
     protected void buildCraftingRecipes(Consumer<VeinBuilder.Result> finished) {
         addVein(finished, new OreVeinType(
                 loc("iron"),
-                mcLoc("block/iron_ore"),
-                mcLoc("blocks/iron_ore"),
                 80,
                 0.8f,
-                50,
-                200,
+                -48,
+                128,
                 new ResourceLocation[] {mcLoc("overworld") },
                 BiomeTags.IS_OVERWORLD,
                 false,
-                30
+                30,
+                VeinUtils.getDefaultMatchers(),
+                Map.of("default", Map.of(Blocks.IRON_ORE.defaultBlockState(), 1.0f),
+                        "minecraft:deepslate", Map.of(Blocks.DEEPSLATE_IRON_ORE.defaultBlockState(), 1.0f))
         ));
         addVein(finished, new OreVeinType(
                 loc("gold"),
-                mcLoc("block/gold_ore"),
-                mcLoc("blocks/gold_ore"),
                 60,
                 0.5f,
-                50,
-                200,
+                -64,
+                32,
                 new ResourceLocation[] {mcLoc("overworld") },
                 BiomeTags.IS_OVERWORLD,
                 false,
-                20
+                20,
+                VeinUtils.getDefaultMatchers(),
+                Map.of("default", Map.of(Blocks.GOLD_ORE.defaultBlockState(), 0.5f, Blocks.STONE.defaultBlockState(), 0.5f),
+                        "minecraft:deepslate", Map.of(Blocks.DEEPSLATE_GOLD_ORE.defaultBlockState(), 0.5f, Blocks.DEEPSLATE.defaultBlockState(), 0.5f))
         ));
         addVein(finished, new OreVeinType(
                 loc("coal"),
-                mcLoc("block/coal_ore"),
-                mcLoc("blocks/coal_ore"),
                 100,
                 0.8f,
-                0,
-                320,
+                34,
+                78,
                 new ResourceLocation[] {mcLoc("overworld") },
                 BiomeTags.IS_OVERWORLD,
                 false,
-                40
+                40,
+                VeinUtils.getDefaultMatchers(),
+                Map.of("default", Map.of(Blocks.COAL_ORE.defaultBlockState(), 0.8f, Blocks.STONE.defaultBlockState(), 0.2f),
+                        "minecraft:deepslate", Map.of(Blocks.DEEPSLATE_COAL_ORE.defaultBlockState(), 0.8f, Blocks.DEEPSLATE.defaultBlockState(), 0.2f))
         ));
         addVein(finished, new OreVeinType(
                 loc("copper"),
-                mcLoc("block/copper_ore"),
-                mcLoc("blocks/copper_ore"),
                 90,
                 0.8f,
-                0,
-                320,
+                -16,
+                90,
                 new ResourceLocation[] {mcLoc("overworld") },
                 BiomeTags.IS_OVERWORLD,
                 false,
-                40
+                128,
+                VeinUtils.getDefaultMatchers(),
+                Map.of("default", Map.of(Blocks.COPPER_ORE.defaultBlockState(), 0.8f, Blocks.STONE.defaultBlockState(), 0.2f),
+                        "minecraft:deepslate", Map.of(Blocks.DEEPSLATE_COPPER_ORE.defaultBlockState(), 0.8f, Blocks.DEEPSLATE.defaultBlockState(), 0.2f))
         ));
         addVein(finished, new OreVeinType(
                 loc("emerald"),
-                mcLoc("block/emerald_ore"),
-                mcLoc("blocks/emerald_ore"),
                 30,
                 0.4f,
-                0,
-                320,
+                -52,
+                100,
                 new ResourceLocation[] {mcLoc("overworld") },
                 BiomeTags.IS_MOUNTAIN,
                 false,
-                40
+                128,
+                VeinUtils.getDefaultMatchers(),
+                Map.of("default", Map.of(Blocks.EMERALD_ORE.defaultBlockState(), 0.4f, Blocks.STONE.defaultBlockState(), 0.6f),
+                        "minecraft:deepslate", Map.of(Blocks.DEEPSLATE_EMERALD_ORE.defaultBlockState(), 0.4f, Blocks.DEEPSLATE.defaultBlockState(), 0.6f))
         ));
         addVein(finished, new OreVeinType(
                 loc("lapis"),
-                mcLoc("block/lapis_ore"),
-                mcLoc("blocks/lapis_ore"),
                 40,
                 0.4f,
-                0,
-                320,
+                -64,
+                64,
                 new ResourceLocation[] {mcLoc("overworld") },
                 BiomeTags.IS_OVERWORLD,
                 false,
-                40
+                128,
+                VeinUtils.getDefaultMatchers(),
+                Map.of("default", Map.of(Blocks.LAPIS_ORE.defaultBlockState(), 0.4f, Blocks.STONE.defaultBlockState(), 0.6f),
+                        "minecraft:deepslate", Map.of(Blocks.DEEPSLATE_LAPIS_ORE.defaultBlockState(), 0.4f, Blocks.DEEPSLATE.defaultBlockState(), 0.6f))
         ));
         addVein(finished, new OreVeinType(
                 loc("redstone"),
-                mcLoc("block/redstone_ore"),
-                mcLoc("blocks/redstone_ore"),
                 60,
                 0.9f,
-                0,
-                320,
+                -60,
+                15,
                 new ResourceLocation[] {mcLoc("overworld") },
                 BiomeTags.IS_OVERWORLD,
                 false,
-                40
+                128,
+                VeinUtils.getDefaultMatchers(),
+                Map.of("default", Map.of(Blocks.REDSTONE_ORE.defaultBlockState(), 0.9f, Blocks.STONE.defaultBlockState(), 0.1f),
+                        "minecraft:deepslate", Map.of(Blocks.DEEPSLATE_REDSTONE_ORE.defaultBlockState(), 0.9f, Blocks.DEEPSLATE.defaultBlockState(), 0.1f))
         ));
         addVein(finished, new OreVeinType(
                 loc("diamond"),
-                mcLoc("block/diamond_ore"),
-                mcLoc("blocks/diamond_ore"),
                 20,
                 0.3f,
-                0,
-                100,
+                -64,
+                10,
                 new ResourceLocation[] {mcLoc("overworld") },
                 BiomeTags.IS_OVERWORLD,
                 false,
-                40
+                128,
+                VeinUtils.getDefaultMatchers(),
+                Map.of("default", Map.of(Blocks.DIAMOND_ORE.defaultBlockState(), 0.3f, Blocks.STONE.defaultBlockState(), 0.7f),
+                        "minecraft:deepslate", Map.of(Blocks.DEEPSLATE_DIAMOND_ORE.defaultBlockState(), 0.3f, Blocks.DEEPSLATE.defaultBlockState(), 0.7f))
         ));
     }
     protected void addVein(Consumer<VeinBuilder.Result> finished, OreVeinType result){
