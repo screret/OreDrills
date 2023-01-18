@@ -57,7 +57,7 @@ public class OreVeinType/* implements INBTSerializable<Tag>*/ {
             return 0;
         }
 
-        int totlPlaced = 0;
+        int totalPlaced = 0;
         int randY = this.minSpawnHeight + level.getRandom().nextInt(this.maxSpawnHeight - this.minSpawnHeight);
         int max = level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, pos.getX(), pos.getZ());
         if (randY > max) {
@@ -102,7 +102,7 @@ public class OreVeinType/* implements INBTSerializable<Tag>*/ {
                                     BlockState current = level.getBlockState(placePos);
 
                                     if (FeatureUtils.enqueueBlockPlacement(level, new ChunkPos(pos), placePos, current, veins, this)) {
-                                        totlPlaced++;
+                                        totalPlaced++;
                                     }
                                 }
                             }
@@ -112,7 +112,8 @@ public class OreVeinType/* implements INBTSerializable<Tag>*/ {
             }
         }
 
-        return totlPlaced;
+        OreDrills.LOGGER.debug("" + totalPlaced);
+        return totalPlaced;
     }
 
     public void afterGen(BlockPos pos) {

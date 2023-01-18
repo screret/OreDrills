@@ -36,17 +36,18 @@ public class BlockEntityOre extends BlockEntity {
     @Nullable
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        CompoundTag tag = new CompoundTag();
-        if (oreToImitate != null) {
-            tag.put("oreToImitate", NbtUtils.writeBlockState(oreToImitate));
-        }
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag() {
+        return saveWithFullMetadata();
     }
 
     @Override
     public void setLevel(Level pLevel) {
         super.setLevel(pLevel);
-        if(this.type == null) this.setOreType();
+        if(this.type == null && this.level != null) this.setOreType();
         this.load(this.saveWithFullMetadata());
     }
 
@@ -69,8 +70,7 @@ public class BlockEntityOre extends BlockEntity {
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag)
-    {
+    public void handleUpdateTag(CompoundTag tag) {
         BlockState oldOre = oreToImitate;
         super.handleUpdateTag(tag);
         if(tag.contains("oreToImitate")) {
@@ -94,7 +94,6 @@ public class BlockEntityOre extends BlockEntity {
     protected void saveAdditional(CompoundTag pTag) {
         super.saveAdditional(pTag);
         pTag.putString("type", type == null || type.id == null ? "oredrills:diamond" : type.id.toString());
-        pTag.putString("oreTexture", oreToImitate.toString());
         if(oreToImitate != null) {
             pTag.put("oreToImitate", NbtUtils.writeBlockState(oreToImitate));
         }

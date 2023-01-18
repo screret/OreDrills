@@ -102,12 +102,13 @@ public class VeinCapability implements IVeinCapability {
 
     @Override
     public void deserializeNBT(CompoundTag compound) {
-        compound.getAllKeys().forEach(chunkPosAsString -> {
+        var pendingTag = compound.getCompound("pending");
+        pendingTag.getAllKeys().forEach(chunkPosAsString -> {
             // Parse out the ChunkPos
             String[] parts = chunkPosAsString.split("_");
             ChunkPos cp = new ChunkPos(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
             // Parse out the pending block objects
-            ListTag pending = compound.getList(chunkPosAsString, 10);
+            ListTag pending = pendingTag.getList(chunkPosAsString, 10);
             ConcurrentLinkedQueue<PendingBlock> lq = new ConcurrentLinkedQueue<>();
             pending.forEach(x -> {
                 PendingBlock pb = PendingBlock.deserialize(x, this.level);
@@ -116,6 +117,18 @@ public class VeinCapability implements IVeinCapability {
                 }
             });
             this.pendingBlocks.put(cp, lq);
+        });
+        var veinsTag = compound.getCompound("veins");
+        veinsTag.getAllKeys().forEach(chunkPosAsString -> {
+            // Parse out the ChunkPos
+            String[] parts = chunkPosAsString.split("_");
+            ChunkPos cp = new ChunkPos(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
+            // Parse out the pending block objects
+            oreTypeCountPerChunk.putIfAbsent(cp, new HashMap<>());
+            CompoundTag vein = veinsTag.getCompound(chunkPosAsString);
+            vein.getAllKeys().forEach((key) -> {
+                oreTypeCountPerChunk.get(cp).put(OreVeinManager.INSTANCE.getAllVeins().get(new ResourceLocation(key)), vein.getInt(key));
+            });
         });
     }
 

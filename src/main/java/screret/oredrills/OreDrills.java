@@ -20,6 +20,7 @@ import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.CreativeModeTabEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -35,6 +36,7 @@ import screret.oredrills.block.ModBlockEntities;
 import screret.oredrills.block.ModBlocks;
 import screret.oredrills.capability.vein.VeinCapability;
 import screret.oredrills.capability.vein.IVeinCapability;
+import screret.oredrills.command.ProspectCommand;
 import screret.oredrills.data.vein.provider.VeinProvider;
 import screret.oredrills.item.ModItems;
 import screret.oredrills.resources.DynamicRegistries;
@@ -75,6 +77,7 @@ public class OreDrills {
 
         MinecraftForge.EVENT_BUS.addListener(this::registerReloadListeners);
         MinecraftForge.EVENT_BUS.addListener(this::onServerStarting);
+        MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
         MinecraftForge.EVENT_BUS.addGenericListener(Level.class, this::attachWorldCaps);
 
         MinecraftForge.EVENT_BUS.register(this);
@@ -91,6 +94,11 @@ public class OreDrills {
     public void onServerStarting(ServerStartingEvent event) {
         // Do something when the server starts
     }
+
+    public void registerCommands(RegisterCommandsEvent event){
+        ProspectCommand.register(event.getDispatcher());
+    }
+
 
     public void registerReloadListeners(final AddReloadListenerEvent event){
         OreVeinManager.INSTANCE = new OreVeinManager();
