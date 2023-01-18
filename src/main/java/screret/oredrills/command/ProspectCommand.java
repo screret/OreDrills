@@ -34,16 +34,20 @@ public class ProspectCommand {
     }
 
     private static int execute(CommandContext<CommandSourceStack> command, BlockPos pos){
-        if(command.getSource().getEntity() instanceof Player){
-            return execute(command);
-        } else {
-            var level = command.getSource().getLevel();
-            var veins = level.getCapability(VeinCapability.CAPABILITY).orElseThrow(() -> new IllegalStateException("VeinCapability is null.")).getOreVeins(new ChunkPos(pos));
+        var level = command.getSource().getLevel();
+        var veins = level.getCapability(VeinCapability.CAPABILITY).orElseThrow(() -> new IllegalStateException("VeinCapability is null.")).getOreVeins(new ChunkPos(pos));
+        if(command.getSource().getEntity() instanceof Player player) {
+            player.sendSystemMessage(Component.translatable("msg.prospect").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW));
+            for (var vein : veins.keySet()){
+                player.sendSystemMessage(Component.literal("  - " + vein.id).withStyle(ChatFormatting.YELLOW));
+            }
+        }else {
             level.getServer().sendSystemMessage(Component.translatable("msg.prospect").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW));
             for (var vein : veins.keySet()){
                 level.getServer().sendSystemMessage(Component.literal("  - " + vein.id).withStyle(ChatFormatting.YELLOW));
             }
         }
+
         return Command.SINGLE_SUCCESS;
     }
 }

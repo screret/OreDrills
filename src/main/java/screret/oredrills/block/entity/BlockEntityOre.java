@@ -56,6 +56,10 @@ public class BlockEntityOre extends BlockEntity {
         this.type = oreTypes[level.getRandom().nextInt(oreTypes.length - 1)];
     }
 
+    public void setOreType(OreVeinType type) {
+        this.type = type;
+    }
+
     public OreVeinType getOreType(){
         return this.type;
     }

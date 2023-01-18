@@ -3,6 +3,7 @@ package screret.oredrills.block.block;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -18,6 +19,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import org.jetbrains.annotations.Nullable;
 import screret.oredrills.block.ModBlockEntities;
 import screret.oredrills.block.entity.BlockEntityOre;
+import screret.oredrills.resources.OreVeinManager;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +35,14 @@ public class BlockOre extends BaseEntityBlock {
     public BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
         BlockEntityOre ore = ModBlockEntities.ORE.get().create(pPos, pState);
         return ore;
+    }
+
+    @Override
+    public void setPlacedBy(Level pLevel, BlockPos pPos, BlockState pState, @Nullable LivingEntity pPlacer, ItemStack pStack) {
+        super.setPlacedBy(pLevel, pPos, pState, pPlacer, pStack);
+        pLevel.getBlockEntity(pPos, ModBlockEntities.ORE.get()).ifPresent(var -> {
+            var.setOreType(OreVeinManager.INSTANCE.getAllVeins().get(new ResourceLocation(pStack.getTag().getCompound("BlockEntityTag").getString("type"))));
+        });
     }
 
     @Override
